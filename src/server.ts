@@ -9,6 +9,7 @@ import helmet from 'helmet';
  */
 
 import config from '@/config';
+import limiter from '@/lib/express_rate_limits';
 
 /**
  * Types
@@ -62,8 +63,10 @@ app.use(
 );
 
 // Use Helmet to enhance securioty by setting various HTTP headers enhance security
-
 app.use(helmet());
+
+// Apply rate limitting middleware to prevent excessive requests and enhance security
+app.use(limiter);
 
 app.get('/', (req, res) => {
   res.json({
