@@ -43,6 +43,14 @@ const corsOptions: CorsOptions = {
 // Apply CORS Middleware
 app.use(cors({ origin: false }));
 
+// Enable JSON parsing
+app.use(express.json());
+
+// Enabled URL-encoded request body parsing with extended mode
+// `extended : true` allows rich objects and arrays via querystring library
+
+app.use(express.urlencoded({ extended: true }));
+
 app.get('/', (req, res) => {
   res.json({
     message: 'Hello from backend!',
