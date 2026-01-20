@@ -1,5 +1,8 @@
 import express from 'express';
 import cors from 'cors';
+import cookieParser from 'cookie-parser';
+import compression from 'compression';
+import helmet from 'helmet';
 
 /**
  * Custom modules
@@ -50,6 +53,17 @@ app.use(express.json());
 // `extended : true` allows rich objects and arrays via querystring library
 
 app.use(express.urlencoded({ extended: true }));
+
+// Enable response compression to reduce payload size and improve performance
+app.use(
+  compression({
+    threshold: 1024, // only compress responses larger than 1kb
+  })
+);
+
+// Use Helmet to enhance securioty by setting various HTTP headers enhance security
+
+app.use(helmet());
 
 app.get('/', (req, res) => {
   res.json({
