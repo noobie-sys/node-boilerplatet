@@ -12,6 +12,12 @@ import config from '@/config';
 import limiter from '@/lib/express_rate_limits';
 
 /**
+ * Router
+ */
+
+import v1Routes from '@/routes/v1';
+
+/**
  * Types
  */
 
@@ -68,11 +74,54 @@ app.use(helmet());
 // Apply rate limitting middleware to prevent excessive requests and enhance security
 app.use(limiter);
 
-app.get('/', (req, res) => {
-  res.json({
-    message: 'Hello from backend!',
-  });
-});
-app.listen(config.PORT, () => {
-  console.log('server is running on port: ', config.PORT);
-});
+/**
+ * Immediately Invoked Asynced Function Expression (IIFE) to start the server
+ *
+ * - Tries to conenct to the database before initializing the server.
+ * - Defines the API routes (`/api/v1`)
+ *  - Starts the srever on the specified PORt and logs the running URL.
+ *  - If an error occurs during startup, it is logged, and the process exits with status 1
+ *
+ */
+
+(async () => {
+  try {
+    app.use('/api/v1', v1Routes);
+    app.listen(config.PORT, () => {
+      console.log('server is running on port: ', config.PORT);
+    });
+  } catch (error) {
+    console.log(`failed to start the server`, error);
+
+    if (config.NODE_ENV === 'production') {
+      process.exit(1);
+    }
+  }
+})();
+
+/**
+ * andler server shutdown gracefully by disconencting from the database
+ *
+ *  - Attempts to disconnect from the database before shutting down the srever.
+ * - Logs an errro occurs during disconnectin, it is logged to the console.
+ * - Exits the process with status code `0` (indicationg a successfully shutdown)
+ */
+
+const handleServerShutdown = async () => {
+  try {
+    console.log('Gracefully Server SHUTDOWN');
+    process.exit(0);
+  } catch (err) {
+    console.log('Error during server shutdown', err);
+  }
+};
+
+/**
+ * Lissten for termination signals (`SIGTERM` and `SIGNT`)
+ *
+ * - `SIGTERM` is typically send when stopping a process (e.g., kill command or container shutdown)
+ *
+ */
+
+process.on('SIGTERM', handleServerShutdown);
+process.on('SIGINT', handleServerShutdown);
